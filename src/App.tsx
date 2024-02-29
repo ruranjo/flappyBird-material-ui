@@ -1,10 +1,9 @@
 import { Box, SxProps, Typography } from '@mui/material';
-
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { bgGagme, bird, pipe } from './utils/assets';
 import { emojis } from './utils/emojis';
 
-
+// Interfaz que define las propiedades de estilo para la aplicación
 export interface styledApp {
   containerStyle: SxProps;
   background: SxProps;
@@ -15,32 +14,26 @@ export interface styledApp {
   scoreContainer: SxProps;
 }
 
+// Estilos para la aplicación
 const appStyle: styledApp = {
-  containerStyle:{
-      height: '100vh',
-      
-      display: 'flex',
-      flexDirection:'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-    '@media screen and (max-width: 440px)': {
-      
-    },
+  containerStyle: {
+    height: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    '@media screen and (max-width: 440px)': {},
   },
-  background:{
+  background: {
     border: '2px solid black',
     backgroundImage: `url(${bgGagme})`,
     backgroundRepeat: 'no-repeat',
     position: 'relative',
     overflow: 'hidden',
-    
-    '@media screen and (max-width: 440px)': {
-      
-    },
+    '@media screen and (max-width: 440px)': {},
   },
-  startboard:{
+  startboard: {
     fontFamily: '"Bebas Neue", sans-serif',
-
     position: 'relative',
     top: '49%',
     backgroundColor: 'black',
@@ -55,56 +48,52 @@ const appStyle: styledApp = {
     color: '#fff',
     fontWeight: 600,
   },
-  obj:{
+  obj: {
     position: 'relative',
     backgroundImage: `url(${pipe})`,
   },
-
-  bird:{
+  bird: {
     position: 'absolute',
     backgroundImage: `url(${bird})`,
     backgroundRepeat: 'no-repeat',
-   
   },
-  score:{
-    fontSize:'2rem',
+  score: {
+    fontSize: '2rem',
     fontFamily: '"Bebas Neue", sans-serif',
   },
-  scoreContainer:{
+  scoreContainer: {
     display: 'flex',
-    backgroundColor:'black',
-    color:'white',
+    backgroundColor: 'black',
+    color: 'white',
     justifyContent: 'space-around',
     alignItems: 'center',
-    width:'400px',
+    width: '400px',
+  },
+};
 
-  }
+// Interfaz para las propiedades del componente
+export interface Props {}
 
-}
-
-
-export interface Props {
-
-}
-
+// Constantes que definen las dimensiones y comportamiento del juego
 const BIRD_HEIGHT = 40;
 const BIRD_WIDTH = 40;
 const WALL_HEIGHT = 600;
-const WALL_WIDTH = 400;//400
+const WALL_WIDTH = 400;
 const GRAVITY = 8;
 const OBJ_WIDTH = 52;
 const OBJ_SPEED = 6;
 const OBJ_GAP = 200;
 
-
-
-const App:React.FC<Props> = () => {
+// Componente principal de la aplicación
+const App: React.FC<Props> = () => {
+  // Estados para controlar el estado del juego y las posiciones
   const [isStart, setIsStart] = useState(false);
   const [birdpos, setBirspos] = useState(300);
   const [objHeight, setObjHeight] = useState(0);
   const [objPos, setObjPos] = useState(WALL_WIDTH);
   const [score, setScore] = useState(0);
 
+  // Efecto que controla el movimiento del pájaro debido a la gravedad
   useEffect(() => {
     let intVal: number;
 
@@ -117,6 +106,7 @@ const App:React.FC<Props> = () => {
     return () => clearInterval(intVal);
   });
 
+  // Efecto que controla el movimiento y reinicio de los obstáculos
   useEffect(() => {
     let objval: number;
     if (isStart && objPos >= -OBJ_WIDTH) {
@@ -127,7 +117,6 @@ const App:React.FC<Props> = () => {
       return () => {
         clearInterval(objval);
       };
-
     } else {
       setObjPos(WALL_WIDTH);
       setObjHeight(Math.floor(Math.random() * (WALL_HEIGHT - OBJ_GAP)));
@@ -135,7 +124,7 @@ const App:React.FC<Props> = () => {
     }
   }, [isStart, objPos]);
 
-
+  // Efecto que detecta colisiones y reinicia el juego
   useEffect(() => {
     let topObj = birdpos >= 0 && birdpos < objHeight;
     let bottomObj =
@@ -152,57 +141,69 @@ const App:React.FC<Props> = () => {
       setBirspos(300);
       setScore(0);
     }
-    if(score === 99){
+    if (score === 99) {
       setScore(0);
     }
   }, [isStart, birdpos, objHeight, objPos]);
-  
-  
+
+  // Manejador de clics para controlar el inicio y saltos del pájaro
   const handler = () => {
     if (!isStart) setIsStart(true);
     else if (birdpos < BIRD_HEIGHT) setBirspos(0);
     else setBirspos((birdpos) => birdpos - 80);
   };
 
+  // Renderización del componente
   return (
     <Box sx={appStyle.containerStyle} onClick={handler}>
       <Box sx={appStyle.scoreContainer} >
         <Typography sx={appStyle.score} > BY:RURANJO </Typography>
-        
         <Typography sx={appStyle.score} >{emojis[score].code}</Typography>
         <Typography sx={appStyle.score} > Score: {score}</Typography>
       </Box>
-      <Box sx={
-        {...appStyle.background,
-         backgroundSize: `${WALL_WIDTH}px ${WALL_HEIGHT}px`,
-         width: `${WALL_WIDTH}px`, height: `${WALL_HEIGHT}px`
+      <Box
+        sx={{
+          ...appStyle.background,
+          backgroundSize: `${WALL_WIDTH}px ${WALL_HEIGHT}px`,
+          width: `${WALL_WIDTH}px`,
+          height: `${WALL_HEIGHT}px`,
         }}
       >
         {!isStart ? <Box sx={appStyle.startboard} >Click To Start</Box> : null}
-        
-        <Box sx={{...appStyle.obj, height: `${objHeight}px`,width:`${OBJ_WIDTH}px`,left:objPos,top:0, transform: `rotate(${180}deg)` }}
+        <Box
+          sx={{
+            ...appStyle.obj,
+            height: `${objHeight}px`,
+            width: `${OBJ_WIDTH}px`,
+            left: objPos,
+            top: 0,
+            transform: `rotate(${180}deg)`,
+          }}
         ></Box>
-
-        <Box sx={{...appStyle.bird,
-        backgroundSize: `${BIRD_HEIGHT}px ${BIRD_WIDTH}px`,
-        height: `${BIRD_HEIGHT}px`,
-        width:`${BIRD_WIDTH}px`,
-        left:100,
-        top:birdpos}}
+        <Box
+          sx={{
+            ...appStyle.bird,
+            backgroundSize: `${BIRD_HEIGHT}px ${BIRD_WIDTH}px`,
+            height: `${BIRD_HEIGHT}px`,
+            width: `${BIRD_WIDTH}px`,
+            left: 100,
+            top: birdpos,
+          }}
         ></Box>
-
-        <Box sx={{...appStyle.obj,
-         height: `${WALL_HEIGHT - OBJ_GAP - objHeight}px`,
-         width:`${OBJ_WIDTH}px`,
-         left:objPos,
-         top: WALL_HEIGHT - (objHeight + (WALL_HEIGHT - OBJ_GAP - objHeight)),
-         transform: `rotate(${0}deg)`
-        }}
+        <Box
+          sx={{
+            ...appStyle.obj,
+            height: `${WALL_HEIGHT - OBJ_GAP - objHeight}px`,
+            width: `${OBJ_WIDTH}px`,
+            left: objPos,
+            top: WALL_HEIGHT - (objHeight + (WALL_HEIGHT - OBJ_GAP - objHeight)),
+            transform: `rotate(${0}deg)`,
+          }}
         ></Box>
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default App
+export default App;
 
